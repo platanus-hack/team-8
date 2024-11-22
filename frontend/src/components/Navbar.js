@@ -37,6 +37,9 @@ const Navbar = () => {
           <Link className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-neutral mr-4" href="/todos">
             Todos
           </Link>
+          <Link className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-neutral mr-4" href="/uiResources">
+            UI Resources
+          </Link>
         </div>
       </div>
     </nav>

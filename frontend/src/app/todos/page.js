@@ -1,7 +1,7 @@
 export default function Todos() {
   return (
-    <div className="bg-green-900">
-      <h1>Test</h1>
+    <div className="min-h-full">
+      <h1 className="text-4xl font-bold text-center">Todos</h1>
     </div>
   )
 }
