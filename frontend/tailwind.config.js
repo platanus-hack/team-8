@@ -22,10 +22,10 @@ module.exports = {
     },
     extend: {
       colors: {
-        primary: '#3490dc',   // Blue
-        secondary: '#ffed4a', // Yellow
-        accent: '#e3342f',    // Red
-        neutral: '#f4f4f4',   // Light Gray
+        primary: '#22092C',   // Dark Purple
+        secondary: '#872341', // Dark Red
+        tertiary: '#BE3144',    // Red
+        forth: '#F05941',   // Orange
       },
 
 
