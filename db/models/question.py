@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
 import enum
@@ -13,10 +13,12 @@ class Question(Base):
     __tablename__ = "questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    type = Column(Enum(QuestionTypes), nullable=False)
-    guideline_answer = Column(String, nullable=False)  # Corrected to `String`
+    title = Column(String)
+    type = Column(Enum(QuestionTypes))
+    guideline_answer = Column(String)  # Corrected to `String`
     student_score = Column(Integer)
+    max_score = Column(Integer)
 
     # Foreign key linking to `students_answers`
-    student_answers = relationship("StudentAnswer", back_populates="question")  # Removed incorrect ForeignKey
+    student_answer_id = Column(Integer, ForeignKey("student_answer.id"))
+    students_answers = relationship("StudentAnswer", back_populates="students_answers")
