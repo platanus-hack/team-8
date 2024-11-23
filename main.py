@@ -2,6 +2,7 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from boto3 import client
+import json
 import os
 from dotenv import load_dotenv
 import threading
@@ -24,6 +25,7 @@ UPLOAD_DIR = "data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 AWS_CLIENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_ACCESS_KEY_VALUE, service_name='s3')
+AWS_ANSWER_PARSER_AGENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_ACCESS_KEY_VALUE, service_name='bedrock-agent-runtime', region_name='us-west-2')
 
 
 TEXTRACT_CLIENT = client(
@@ -58,7 +60,6 @@ async def root():
 async def list_files():
     """
     List all files in the S3 bucket.
-    
     Returns:
     - List of files in the S3 bucket.
     """
@@ -66,10 +67,8 @@ async def list_files():
         # List all files in the S3 bucket
         files = AWS_CLIENT.list_objects(Bucket=S3_BUCKET)
         files_list = [file['Key'] for file in files['Contents']]
-        
         # Return the list of files
         return files_list
-    
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
@@ -78,7 +77,6 @@ async def analyze_file_s3(file_key: str):
     try:
         # Construct the S3 object URL
         s3_object_url = f"s3://{S3_BUCKET}/{file_key}"
-        
         # Call AWS Textract to analyze the file in S3
         response = TEXTRACT_CLIENT.start_document_text_detection(
             DocumentLocation={
@@ -88,7 +86,6 @@ async def analyze_file_s3(file_key: str):
                 }
             }
         )
-        
         # Get the JobId from the response
         job_id = response.get('JobId')
 
@@ -99,16 +96,40 @@ async def analyze_file_s3(file_key: str):
             if status['JobStatus'] in ['SUCCEEDED', 'FAILED']:
                 result = status
                 break
-        
         if status['JobStatus'] == 'FAILED':
             raise HTTPException(status_code=500, detail="Textract failed to analyze the document.")
-        
         # Return the analysis result
         textract_result = textract_function.open_textract_json(result)
         return {"job_status": status['JobStatus'], "result": textract_result}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+
+@app.post("/parseOcr/")
+async def parse_ocr_answer(ocr_answer: List[str]):
+    try:
+        response = AWS_ANSWER_PARSER_AGENT.invoke_agent(
+            agentId='REMJZIU22D',
+            agentAliasId='G5ECOLYTGP',
+            sessionId='session-6',
+            inputText='\n'.join(ocr_answer)
+        )
+
+        event_stream = response['completion']
+
+        for event in event_stream:
+
+            if 'chunk' in event:
+                chunk_data = event['chunk']['bytes'].decode('utf-8')
+                response = json.loads(chunk_data)
+                return response
+
+    except Exception as e:
+        print(f"Error al invocar el modelo: {str(e)}")
+        return {"error": str(e)}
+
+
 
 
 @app.post("/pauta/")
@@ -168,7 +189,6 @@ async def upload_file(files: List[UploadFile] = File(...)):
         file_queue.put(file)
         file_url = f"https://{S3_BUCKET}.s3.{S3_REGION}.amazonaws.com/data/{file.filename}"
         file_urls.append(file_url)
-    
     # Wait for all tasks in the queue to be processed
     file_queue.join()
 
