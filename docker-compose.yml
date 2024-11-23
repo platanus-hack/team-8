@@ -14,7 +14,7 @@ services:
       - AWS_ACCESS_KEY_VALUE=${AWS_ACCESS_KEY_VALUE}
     env_file:
       - .env
-    restart: always
+    restart: unless-stopped
 
   nginx:
     image: nginx:latest
@@ -27,7 +27,7 @@ services:
       - ./nginx/www:/var/www/certbot
     depends_on:
       - app
-    restart: always
+    restart: unless-stopped
 
   certbot:
     image: certbot/certbot
