@@ -6,12 +6,12 @@ import threading
 import queue
 import os
 from boto3 import client
-from typing import List
+from typing import List, Dict
 import json
 
 # Local Imports
 from .services import open_textract_json
-from core.database import Base, engine
+# from core.database import Base, engine
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_ACCESS_KEY_VALUE = os.getenv('AWS_ACCESS_KEY_VALUE')
@@ -22,7 +22,7 @@ AWS_ANSWER_PARSER_AGENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret
 UPLOAD_DIR = "data"
 
 # Initialize the database tables
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -35,6 +35,27 @@ TEXTRACT_CLIENT = client(
     region_name='us-west-2'  # Cambia por la región correcta
 )
 
+AWS_BEDROCK_CLIENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_ACCESS_KEY_VALUE, service_name='bedrock-runtime', region_name='us-west-2')
+
+def get_correct_exam_system_prompt(guideline, answer):
+    system_prompt = (
+        "You are an assistant for grading exams. "
+        "You need to evaluate how accurate the student's answer is based on a guideline and the answer provided as context. "
+        "The guideline has a structure of a dictionary where the main key is the question number, followed by a dictionary with each question and an outline of what is expected as the student's answer. "
+        "The answer is a dictionary with the same structure, but it contains the student's responses. "
+        "You must evaluate the accuracy of the student's answer on a scale from 1 to 10. "
+        "Provide the result only as a dictionary in the following format: "
+        "Question: { score: assigned_score, feedback: a brief comment explaining the assigned score }. "
+        "Example output: "
+        "{\"1\": { \"score\": 10, \"feedback\": \"The student's answer is correct as it includes all the key points of the expected answer.\" }, "
+        "\"2\": { \"score\": 5, \"feedback\": \"The student's answer is incomplete as it misses a valid argument.\" }, ... }"
+        "The guideline and the student's answer to evaluate are as follows: "
+        f"Guideline: {guideline}. "
+        f"Answer: {answer}. "
+        "Please ensure that the output is in Spanish."
+    )
+    return system_prompt
+
 
 api_router = APIRouter()
 
@@ -43,7 +64,7 @@ api_router = APIRouter()
 async def list_files():
     """
     List all files in the S3 bucket.
-    
+
     Returns:
     - List of files in the S3 bucket.
     """
@@ -51,10 +72,10 @@ async def list_files():
         # List all files in the S3 bucket
         files = AWS_S3_CLIENT.list_objects(Bucket=S3_BUCKET)
         files_list = [file['Key'] for file in files['Contents']]
-        
+
         # Return the list of files
         return files_list
-    
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
@@ -90,7 +111,7 @@ async def analyze_file_s3(file_key: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-    
+
 @api_router.post("/parseOcr/")
 async def parse_ocr_answer(ocr_answer: List[str]):
     try:
@@ -114,7 +135,39 @@ async def parse_ocr_answer(ocr_answer: List[str]):
         print(f"Error al invocar el modelo: {str(e)}")
         return {"error": str(e)}
 
+@api_router.post("/correctExam/")
+async def correct_exam(guideline: Dict, answer: Dict):
+    try:
+        response = AWS_BEDROCK_CLIENT.converse(
+            modelId="anthropic.claude-3-haiku-20240307-v1:0",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [{"text": "Corrige la prueba en base a la pauta y respuesta de tu system prompt"}]
+                }
+            ],
+            system=[{"text": get_correct_exam_system_prompt(guideline, answer)}],
+            inferenceConfig={
+                "temperature": 0.8  # Optional: Set a max token limit
+            }
+        )
+        if 'output' in response and 'message' in response['output']:
+            content = response['output']['message']['content'][0]['text']
+            print("Extracted Content:", content)
+            try:
+                parsed_content = json.loads(content)
+                print("Parsed Content:", json.dumps(parsed_content, indent=2))
+                return parsed_content
+            except json.JSONDecodeError:
+                print("Content is not JSON, returning as string")
+                return {"result": content}
+        return {"error": "No content in response"}
 
+    except Exception as e:
+        return {
+            "error": str(e),
+            "error_type": type(e).__name__
+        }
 
 @api_router.post("/pauta/")
 async def upload_file(file: UploadFile = File(...)):
