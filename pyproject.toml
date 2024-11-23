@@ -20,7 +20,6 @@ sqlalchemy = "^2.0.36"
 psycopg2-binary = "^2.9.10"
 psycopg2 = "^2.9.10"
 
-supabase-python = "^0.2.9"
 asyncpg = "^0.28.0"
 
 

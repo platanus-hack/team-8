@@ -12,8 +12,6 @@ from supabase import create_client, Client
 
 # Local Imports
 from .services import open_textract_json
-from db.models.professor import Professor
-#from core.database import Base, engine
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_ACCESS_KEY_VALUE = os.getenv('AWS_ACCESS_KEY_VALUE')
@@ -32,9 +30,6 @@ def get_supabase_client() -> Client:
 
 
 supabase_client = get_supabase_client()
-
-# Initialize the database tables
-#Base.metadata.create_all(bind=engine)
 
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -253,9 +248,9 @@ async def upload_file(files: List[UploadFile] = File(...)):
 
 # Model Enpoints
 @api_router.post("/professors")
-async def add_professor(professor: Professor):
+async def add_professor(professor):
     """Guarda un nuevo usuario en Supabase"""
     # Inserta el usuario en la tabla "professors"
     response = supabase_client.table("professors").insert(professor.model_dump()).execute()
-    
+
     return {"message": "Profesor guardado exitosamente", "data": response.data}
