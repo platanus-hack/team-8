@@ -5,6 +5,8 @@ from boto3 import client
 import os
 from dotenv import load_dotenv
 
+import services.textract_function as textract_function
+
 load_dotenv()
 
 
@@ -26,7 +28,6 @@ TEXTRACT_CLIENT = client(
     aws_secret_access_key=AWS_ACCESS_KEY_VALUE,
     region_name='us-west-2'  # Cambia por la región correcta
 )
-
 
 app = FastAPI()
 
@@ -70,15 +71,6 @@ async def list_files():
 
 @app.post("/analyze/")
 async def analyze_file_s3(file_key: str):
-    """
-    Send a file from S3 to AWS Textract and return the response.
-    
-    Parameters:
-    - file_key (str): The key of the file in the S3 bucket.
-
-    Returns:
-    - Textract analysis result.
-    """
     try:
         # Construct the S3 object URL
         s3_object_url = f"s3://{S3_BUCKET}/{file_key}"
@@ -108,13 +100,11 @@ async def analyze_file_s3(file_key: str):
             raise HTTPException(status_code=500, detail="Textract failed to analyze the document.")
         
         # Return the analysis result
-        return {"job_status": status['JobStatus'], "result": result}
+        textract_result = textract_function.open_textract_json(result)
+        return {"job_status": status['JobStatus'], "result": textract_result}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-
-    AWS_CLIENT.upload_file(f'data/prueba lourdes completa.pdf', S3_BUCKET, f'test/test5.pdf')
-    return {"message": f'File should have been uploaded to bucket: {S3_BUCKET}'}
 
 
 @app.post("/pauta/")
