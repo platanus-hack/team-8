@@ -5,8 +5,10 @@ from pydantic import BaseModel
 # Local Imports
 
 class StudentAnswer(BaseModel):
-    title : str
-    guideline_answer : str
+    content : str
+    model_score : int
+    model_feedback : str
     student_score : int
 
     question_id : int
+    student_id : int

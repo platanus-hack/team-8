@@ -251,23 +251,102 @@ async def upload_file(files: List[UploadFile] = File(...)):
     }
 
 # Model Enpoints
+
+# CRUD for Tests
 @api_router.post("/tests")
 async def add_test(test: Test):
-    """Guarda una nueva prueba en Supabase"""
+    """Create a new test in Supabase"""
     response = supabase_client.table("tests").insert(test.model_dump()).execute()
-    
-    return {"message": "Prueba guardada exitosamente", "data": response.data}
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Test created successfully", "data": response.data}
 
+@api_router.get("/tests/{test_id}")
+async def get_test(test_id: int):
+    """Get a specific test by ID"""
+    response = supabase_client.table("tests").select("*").eq("id", test_id).execute()
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Test not found")
+    return {"data": response.data[0]}
+
+@api_router.put("/tests/{test_id}")
+async def update_test(test_id: int, test: Test):
+    """Update a test by ID"""
+    response = supabase_client.table("tests").update(test.model_dump()).eq("id", test_id).execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Test updated successfully", "data": response.data}
+
+@api_router.delete("/tests/{test_id}")
+async def delete_test(test_id: int):
+    """Delete a test by ID"""
+    response = supabase_client.table("tests").delete().eq("id", test_id).execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Test deleted successfully"}
+
+# CRUD for Students
 @api_router.post("/students")
 async def add_student(student: Student):
-    """Guarda un nuev estudiante en Supabase"""
+    """Create a new student in Supabase"""
     response = supabase_client.table("students").insert(student.model_dump()).execute()
-    
-    return {"message": "Estudiante guardado exitosamente", "data": response.data}
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Student created successfully", "data": response.data}
 
+@api_router.get("/students/{student_id}")
+async def get_student(student_id: int):
+    """Get a specific student by ID"""
+    response = supabase_client.table("students").select("*").eq("id", student_id).execute()
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return {"data": response.data[0]}
+
+@api_router.put("/students/{student_id}")
+async def update_student(student_id: int, student: Student):
+    """Update a student by ID"""
+    response = supabase_client.table("students").update(student.model_dump()).eq("id", student_id).execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Student updated successfully", "data": response.data}
+
+@api_router.delete("/students/{student_id}")
+async def delete_student(student_id: int):
+    """Delete a student by ID"""
+    response = supabase_client.table("students").delete().eq("id", student_id).execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Student deleted successfully"}
+
+# CRUD for Students' Answers
 @api_router.post("/students_answers")
 async def add_student_answer(student_answer: StudentAnswer):
-    """Guarda una nueva respuesta de estudiante en Supabase"""
+    """Create a new student answer in Supabase"""
     response = supabase_client.table("students_answers").insert(student_answer.model_dump()).execute()
-    
-    return {"message": "Respuesta de estudiantet guardada exitosamente", "data": response.data}
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Student answer created successfully", "data": response.data}
+
+@api_router.get("/students_answers/{answer_id}")
+async def get_student_answer(answer_id: int):
+    """Get a specific student answer by ID"""
+    response = supabase_client.table("students_answers").select("*").eq("id", answer_id).execute()
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Student answer not found")
+    return {"data": response.data[0]}
+
+@api_router.put("/students_answers/{answer_id}")
+async def update_student_answer(answer_id: int, student_answer: StudentAnswer):
+    """Update a student answer by ID"""
+    response = supabase_client.table("students_answers").update(student_answer.model_dump()).eq("id", answer_id).execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Student answer updated successfully", "data": response.data}
+
+@api_router.delete("/students_answers/{answer_id}")
+async def delete_student_answer(answer_id: int):
+    """Delete a student answer by ID"""
+    response = supabase_client.table("students_answers").delete().eq("id", answer_id).execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Student answer deleted successfully"}
