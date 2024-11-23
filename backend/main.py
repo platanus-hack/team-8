@@ -9,8 +9,8 @@ load_dotenv()
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_ACCESS_KEY_VALUE = os.getenv('AWS_ACCESS_KEY_VALUE')
+S3_BUCKET = 'meayudai-files'
 
-print(AWS_ACCESS_KEY_ID)
 
 AWS_CLIENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_ACCESS_KEY_VALUE, service_name='s3')
 
@@ -31,4 +31,5 @@ app.add_middleware(
 @app.get("/")
 async def root():
     buckets = AWS_CLIENT.list_buckets()
-    return {"hello": f"{buckets['Buckets']}"}
+    AWS_CLIENT.upload_file(f'data/prueba lourdes completa.pdf', S3_BUCKET, f'test/test5.pdf')
+    return {"message": f'File should have been uploaded to bucket: {S3_BUCKET}'}

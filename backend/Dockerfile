@@ -2,10 +2,10 @@
 FROM python:3.12-slim
 
 # Establece el directorio de trabajo dentro del contenedor
-WORKDIR /app
+WORKDIR /app/backend
 
 # Copia los archivos del proyecto al contenedor
-COPY . /app
+COPY . /app/backend
 
 # Instala Poetry y las dependencias del proyecto
 RUN pip install poetry && poetry config virtualenvs.create false && poetry install --only main --no-interaction --no-ansi
