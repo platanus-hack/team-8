@@ -12,6 +12,10 @@ from supabase import create_client, Client
 
 # Local Imports
 from .services import open_textract_json
+from db.schemas.test import Test
+from db.schemas.student import Student
+from db.schemas.student_answer import StudentAnswer
+#from core.database import Base, engine
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_ACCESS_KEY_VALUE = os.getenv('AWS_ACCESS_KEY_VALUE')
@@ -247,10 +251,23 @@ async def upload_file(files: List[UploadFile] = File(...)):
     }
 
 # Model Enpoints
-@api_router.post("/professors")
-async def add_professor(professor):
-    """Guarda un nuevo usuario en Supabase"""
-    # Inserta el usuario en la tabla "professors"
-    response = supabase_client.table("professors").insert(professor.model_dump()).execute()
+@api_router.post("/tests")
+async def add_test(test: Test):
+    """Guarda una nueva prueba en Supabase"""
+    response = supabase_client.table("tests").insert(test.model_dump()).execute()
+    
+    return {"message": "Prueba guardada exitosamente", "data": response.data}
 
-    return {"message": "Profesor guardado exitosamente", "data": response.data}
+@api_router.post("/students")
+async def add_student(student: Student):
+    """Guarda un nuev estudiante en Supabase"""
+    response = supabase_client.table("students").insert(student.model_dump()).execute()
+    
+    return {"message": "Estudiante guardado exitosamente", "data": response.data}
+
+@api_router.post("/students_answers")
+async def add_student_answer(student_answer: StudentAnswer):
+    """Guarda una nueva respuesta de estudiante en Supabase"""
+    response = supabase_client.table("students_answers").insert(student_answer.model_dump()).execute()
+    
+    return {"message": "Respuesta de estudiantet guardada exitosamente", "data": response.data}

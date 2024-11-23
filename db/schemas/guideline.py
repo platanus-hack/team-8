@@ -1,14 +1,17 @@
 # Pydantic Imports
 from pydantic import BaseModel
-
 # Libraries Imports
 
 # Local Imports
 
 
-class Test(BaseModel):
+class Guideline(BaseModel):
     title : str
     max_score :  int
-    student_score :  int
-    
-    student_id : int  
+
+    test_id : int
+    question_id : int
+    question_id : int
+   
+ 
+   
