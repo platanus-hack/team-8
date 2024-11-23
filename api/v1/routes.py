@@ -11,7 +11,7 @@ import json
 
 # Local Imports
 from .services import open_textract_json
-from core.database import Base, engine
+#from core.database import Base, engine
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_ACCESS_KEY_VALUE = os.getenv('AWS_ACCESS_KEY_VALUE')
@@ -22,7 +22,7 @@ AWS_ANSWER_PARSER_AGENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret
 UPLOAD_DIR = "data"
 
 # Initialize the database tables
-Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
 
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
