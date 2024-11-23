@@ -14,4 +14,6 @@ RUN pip install poetry && poetry config virtualenvs.create false && poetry insta
 EXPOSE 8000
 
 # Comando para correr la aplicación
+
 CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from boto3 import client
 import os
 from dotenv import load_dotenv
