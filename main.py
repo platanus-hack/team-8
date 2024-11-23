@@ -32,5 +32,5 @@ app.add_middleware(
 @app.get("/")
 async def root():
     buckets = AWS_CLIENT.list_buckets()
-    AWS_CLIENT.upload_file(f'data/prueba lourdes completa.pdf', S3_BUCKET, f'test/test5.pdf')
-    return {"message": f'File should have been uploaded to bucket: {S3_BUCKET}'}
+    #AWS_CLIENT.upload_file(f'data/prueba lourdes completa.pdf', S3_BUCKET, f'test/test5.pdf')
+    return {"message": f'buckets: {buckets}'}
