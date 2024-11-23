@@ -1,15 +1,17 @@
 # FastAPI Imports
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from fastapi import FastAPI
 
 # Libraries Imports
 from dotenv import load_dotenv
-from typing import List
 
 # Local Imports
 from api.v1.routes import api_router
 
 load_dotenv()
+
 
 
 app = FastAPI(

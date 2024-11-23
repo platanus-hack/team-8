@@ -1,5 +1,5 @@
 # SQLAlchemy Imports
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 # Libraries Imports
@@ -10,8 +10,7 @@ from .base import Base, students_tests
 class Professor(Base):
     __tablename__ = "professors"
     id = Column(Integer, primary_key=True, index=True)
-    first_names = Column(String, nullable=False)
-    last_names = Column(String, nullable=False)
+    email = Column(String)
 
-    # Define the relationship to access tests from a student instance
-    tests = relationship("Test", secondary=students_tests, back_populates="students")
+    guideline_id = Column(Integer, ForeignKey("guideline.id"))
+    guidelines = relationship("Guideline", back_populates="guidelines")

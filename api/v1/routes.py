@@ -8,10 +8,12 @@ import os
 from boto3 import client
 from typing import List, Dict
 import json
+from supabase import create_client, Client
 
 # Local Imports
 from .services import open_textract_json
-# from core.database import Base, engine
+from db.models.professor import Professor
+#from core.database import Base, engine
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_ACCESS_KEY_VALUE = os.getenv('AWS_ACCESS_KEY_VALUE')
@@ -20,9 +22,19 @@ S3_REGION = 'oregon'
 AWS_S3_CLIENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_ACCESS_KEY_VALUE, service_name='s3')
 AWS_ANSWER_PARSER_AGENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_ACCESS_KEY_VALUE, service_name='bedrock-agent-runtime', region_name='us-west-2')
 UPLOAD_DIR = "data"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+def get_supabase_client() -> Client:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        raise ValueError("Faltan las variables de configuración de Supabase")
+    return create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+supabase_client = get_supabase_client()
 
 # Initialize the database tables
-# Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
 
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -238,3 +250,12 @@ async def upload_file(files: List[UploadFile] = File(...)):
         "message": "Files uploaded successfully to S3!",
         "files": file_urls
     }
+
+# Model Enpoints
+@api_router.post("/professors")
+async def add_professor(professor: Professor):
+    """Guarda un nuevo usuario en Supabase"""
+    # Inserta el usuario en la tabla "professors"
+    response = supabase_client.table("professors").insert(professor.model_dump()).execute()
+    
+    return {"message": "Profesor guardado exitosamente", "data": response.data}

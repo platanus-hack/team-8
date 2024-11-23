@@ -6,34 +6,21 @@ from sqlalchemy.orm import relationship
 import enum
 
 # Local Imports
-from .base import Base, students_tests
+from .base import Base
 
-
-# Define the enumeration
-class TestStatus(enum.Enum):
-    PENDING = "PENDING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
-
-# Define the enumeration
-class TestTopics(enum.Enum):
-    SCIENCE = "SCIENCE"
-    MATHEMATICS = "MATHEMATICS"
-    LANGUAGE = "LANGUAGE"
-    HISTORY = "HISTORY"
 
 class Guideline(Base):
     __tablename__ = "guidelines"
     
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    topic =  Column(Enum(TestTopics), nullable=False)
-    max_score =  Column(Integer, nullable=False)
-    student_score =  Column(Integer)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date)
-    status =  Column(Enum(TestStatus), nullable=False)
-    
+    title = Column(String)
+    max_score =  Column(Integer)
 
-    student_id = Column(Integer, ForeignKey("students.id"))
-    students = relationship("Student", secondary=students_tests, back_populates="tests")    
+    test_id = Column(Integer, ForeignKey("tests.id"))
+    tests = relationship("Test", back_populates="tests")    
+   
+    question_id = Column(Integer, ForeignKey("questions.id"))
+    questions = relationship("Question", back_populates="questions")    
+   
+    question_id = Column(Integer, ForeignKey("questions.id"))
+    questions = relationship("Question", back_populates="questions")    
