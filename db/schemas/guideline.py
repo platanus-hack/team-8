@@ -11,7 +11,5 @@ class Guideline(BaseModel):
 
     test_id : int
     question_id : int
-    question_id : int
-   
  
    

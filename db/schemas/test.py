@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 class Test(BaseModel):
     title : str
-    max_score :  int
     student_score :  int
+    s3_link: str
     
     student_id : int  
