@@ -5,6 +5,7 @@ description = "Backend for monolithic app with FastAPI and Supabase"
 authors = ["matias cox <mcox5@uc.cl>"]
 license = "MIT"
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"

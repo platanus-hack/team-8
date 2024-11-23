@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Instala Poetry y las dependencias del proyecto
-RUN pip install poetry && poetry config virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi
+RUN pip install poetry && poetry config virtualenvs.create false && poetry install --only main --no-interaction --no-ansi
 
 # Expone el puerto en el que corre la aplicación
 EXPOSE 8000
