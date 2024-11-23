@@ -163,3 +163,8 @@ cython_debug/
 
 # data files
 ocr/data
+
+poetry.lock
+data/
+
+.dockerignore
