@@ -11,17 +11,8 @@ services:
     image: nginx:latest
     ports:
       - "80:80"
-      - "443:443"
+      - "443:443" # Si decides habilitar HTTPS más adelante
     volumes:
-      - ./certbot/www:/var/www/certbot  # Asegúrate de que esta línea esté presente
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
+      - ./nginx/conf.d/nginx.conf:/etc/nginx/conf.d/default.conf
       - fastapi
     restart: always
-
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-
