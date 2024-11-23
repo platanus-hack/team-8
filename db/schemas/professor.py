@@ -4,8 +4,8 @@ from pydantic import BaseModel
 
 # Local Imports
 
-class Student(BaseModel):
-    first_names : str
-    last_names : str
 
-    test_id : str
+class Professor(BaseModel):
+    email : str
+
+    guideline_id : int
