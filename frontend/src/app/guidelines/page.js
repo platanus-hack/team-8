@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import DragAndDrop from '../components/DragAndDrop';
+import DragAndDrop from '@/components/DragAndDrop';
 
 const UploadPage = () => {
   const [files, setFiles] = useState([]);
@@ -62,4 +62,3 @@ const UploadPage = () => {
 };
 
 export default UploadPage;
-

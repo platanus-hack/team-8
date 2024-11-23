@@ -12,7 +12,7 @@ const Navbar = () => {
       <div className="flex items-center flex-shrink-0 text-white mr-6">
         {/* Replace with your logo image */}
         <img src="/acsed.jpeg" alt="Logo" className="h-8 w-8 mr-2" />
-        <span className="font-semibold text-xl tracking-tight">YourAppName</span>
+        <span className="font-semibold text-xl tracking-tight">MeAyudAI</span>
       </div>
 
       {/* Right Side: Navigation Links */}
@@ -34,8 +34,8 @@ const Navbar = () => {
           <Link className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-neutral mr-4" href="/">
             Home
           </Link>
-          <Link className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-neutral mr-4" href="/todos">
-            Todos
+          <Link className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-neutral mr-4" href="/guidelines">
+            Pautas
           </Link>
           <Link className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-neutral mr-4" href="/uiResources">
             UI Resources

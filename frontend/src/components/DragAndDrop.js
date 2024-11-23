@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 const DragAndDrop = ({ onFilesAdded }) => {
+  // Set the onDrop callback
   const onDrop = useCallback(
     (acceptedFiles, rejectedFiles) => {
       // Pass the accepted files to the parent component
@@ -12,6 +13,7 @@ const DragAndDrop = ({ onFilesAdded }) => {
     [onFilesAdded]
   );
 
+  // UseDropzone hook
   const {
     getRootProps,
     getInputProps,
@@ -27,12 +29,14 @@ const DragAndDrop = ({ onFilesAdded }) => {
     multiple: true,
   });
 
+  // Display accepted files
   const acceptedFileItems = acceptedFiles.map((file) => (
     <li key={file.path} className="text-green-600">
       {file.path} - {file.size} bytes
     </li>
   ));
 
+  // Display rejected files
   const fileRejectionItems = fileRejections.map(({ file, errors }) => (
     <li key={file.path} className="text-red-600">
       {file.path} - {file.size} bytes
@@ -55,22 +59,22 @@ const DragAndDrop = ({ onFilesAdded }) => {
     >
       <input {...getInputProps()} />
       {isDragActive ? (
-        <p className="text-gray-700">Drop the files here ...</p>
+        <p className="text-gray-700">Suelta los archivos aquí...</p>
       ) : (
         <p className="text-gray-700">
-          Drag and drop some files here, or click to select files
+          Arrastra y suelta archivos aquí, o haz click para seleccionar archivos
         </p>
       )}
       <aside className="mt-4">
         {acceptedFiles.length > 0 && (
           <>
-            <h4 className="font-semibold">Accepted files</h4>
+            <h4 className="font-semibold">Archivos aceptados</h4>
             <ul>{acceptedFileItems}</ul>
           </>
         )}
         {fileRejections.length > 0 && (
           <>
-            <h4 className="font-semibold mt-2">Rejected files</h4>
+            <h4 className="font-semibold mt-2">Archivos rechazados</h4>
             <ul>{fileRejectionItems}</ul>
           </>
         )}
