@@ -35,9 +35,6 @@ def get_supabase_client() -> Client:
 
 supabase_client = get_supabase_client()
 
-# Initialize the database tables
-#Base.metadata.create_all(bind=engine)
-
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 

@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8000:8000"  
+      - "8000:8000"
     environment:
       - ENVIRONMENT=production
       - AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
