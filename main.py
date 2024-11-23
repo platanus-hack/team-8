@@ -14,7 +14,6 @@ import services.textract_function as textract_function
 
 load_dotenv()
 
-
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_ACCESS_KEY_VALUE = os.getenv('AWS_ACCESS_KEY_VALUE')
 S3_BUCKET = 'meayudai-files'

@@ -14,4 +14,3 @@ services:
       - AWS_ACCESS_KEY_VALUE=${AWS_ACCESS_KEY_VALUE}
     env_file:
       - .env
-    restart: always
