@@ -15,6 +15,7 @@ supabase = "^2.10.0"
 python-dotenv = "^1.0.1"
 pydantic-settings = "^2.6.1"
 boto3 = "^1.35.68"
+python-multipart = "^0.0.17"
 
 
 [build-system]
