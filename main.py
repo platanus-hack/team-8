@@ -8,12 +8,9 @@ from typing import List
 
 # Local Imports
 from api.v1.routes import api_router
-from core.database import Base, engine
 
 load_dotenv()
 
-# Initialize the database tables
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="My FastAPI Project",

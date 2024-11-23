@@ -11,18 +11,21 @@ import json
 
 # Local Imports
 from .services import open_textract_json
+from core.database import Base, engine
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_ACCESS_KEY_VALUE = os.getenv('AWS_ACCESS_KEY_VALUE')
 S3_BUCKET = 'meayudai-files'
 S3_REGION = 'oregon'
-# Directory to save uploaded files
-UPLOAD_DIR = "data"
-
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
 AWS_S3_CLIENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_ACCESS_KEY_VALUE, service_name='s3')
 AWS_ANSWER_PARSER_AGENT = client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_ACCESS_KEY_VALUE, service_name='bedrock-agent-runtime', region_name='us-west-2')
+UPLOAD_DIR = "data"
+
+# Initialize the database tables
+Base.metadata.create_all(bind=engine)
+
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 TEXTRACT_CLIENT = client(
