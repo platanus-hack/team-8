@@ -389,7 +389,7 @@ async def get_student_answers(test_id: int):
     response = supabase_client.table("students_answers").select("*").eq("id", test_id).execute()
     if not response.data:
         raise HTTPException(status_code=404, detail="Student answer not found")
-    return {"data": response.data[0]}
+    return {"data": response.data}
 
 @api_router.put("/students_answers/{answer_id}")
 async def update_student_answer(answer_id: int, student_answer: StudentAnswer):
@@ -410,13 +410,13 @@ async def delete_student_answer(answer_id: int):
     return {"message": "Student answer deleted successfully"}
 
 @api_router.get("/questions")
-async def get_test_questions(test_id: int):
+async def get_test_questions(guideline_id: int):
     """Get all test questions for a specific test"""
-    response = supabase_client.table("questions").select("*").eq("test_id", test_id).execute()
+    response = supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
     if not response.data:
         raise HTTPException(status_code=400, detail=response.data or 'Error in the request')
+    return {"message": "Test questions retrieved successfully", "data": response.data}
 
-    return {"message": "Test questions retrieved successfully"}
 
 @api_router.get("/guidelines/")
 async def get_guidelines():
