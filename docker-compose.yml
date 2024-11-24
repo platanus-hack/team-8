@@ -1,11 +1,42 @@
-version: "3.8"
-
 services:
   app:
-    build: .
-    ports:
-      - 3000:3000
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - .:/app
+    ports:
+      - "8000:8000"
     environment:
-      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_ACCESS_KEY_VALUE=${AWS_ACCESS_KEY_VALUE}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d/nginx.conf:/etc/nginx/conf.d/default.conf
+      - certs:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certs:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email agustinberguecio@gmail.com --agree-tos --no-eff-email -d api.meayudai.com
+
+volumes:
+  certs:
