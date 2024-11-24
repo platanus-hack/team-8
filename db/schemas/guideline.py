@@ -7,8 +7,8 @@ from pydantic import BaseModel
 
 class Guideline(BaseModel):
     title : str
-    max_score :  int
     topic : str
+    max_score :  int
     s3_link : str
-    test_id : int
-    question_id : int
+    
+    professor_id : int

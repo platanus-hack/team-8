@@ -7,5 +7,3 @@ from pydantic import BaseModel
 class Student(BaseModel):
     first_names : str
     last_names : str
-
-    test_id : str
