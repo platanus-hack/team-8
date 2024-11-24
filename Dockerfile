@@ -7,9 +7,9 @@ WORKDIR /app
 # Copia los archivos del proyecto al contenedor
 COPY . /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y libpq-dev gcc \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# # Install system dependencies
+# RUN apt-get update && apt-get install -y libpq-dev gcc \
+#     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instala Poetry y las dependencias del proyecto
 RUN pip install poetry && poetry config virtualenvs.create false && poetry install --only main --no-interaction --no-ansi
