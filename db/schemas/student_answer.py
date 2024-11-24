@@ -9,6 +9,7 @@ class StudentAnswer(BaseModel):
     student_score : int
     model_feedback : str
     student_score : int
+    positional_index : int
 
     question_id : int
     test_id : int
