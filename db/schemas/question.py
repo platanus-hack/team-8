@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class Question(BaseModel):
     title : str
-    type : int
+    type : str
     max_score : int
     guideline_answer: str
     positional_index: int

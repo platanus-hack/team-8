@@ -65,6 +65,8 @@ def get_correct_exam_system_prompt(guideline, answer):
         f"Guideline: {guideline}. "
         f"Answer: {answer}. "
         "Please ensure that the output is in Spanish."
+        "Please ensure that the output is structured as a JSON."
+        "Just give me the parsed answer, do not add any other text or phrase."
     )
     return system_prompt
 
@@ -252,7 +254,6 @@ async def save_Test(files: List[UploadFile] = File(...)):
             supabase_client.table("students_answers").insert({ "content":value.get("answer")}).execute()
     return {"message": "Files saved successfully", "data": [files_in_s3]}
 
-@api_router.post("/correctExam/")
 async def correct_exam(guideline: Dict, answer: Dict):
     try:
         response = AWS_BEDROCK_CLIENT.converse(
@@ -265,7 +266,7 @@ async def correct_exam(guideline: Dict, answer: Dict):
             ],
             system=[{"text": get_correct_exam_system_prompt(guideline, answer)}],
             inferenceConfig={
-                "temperature": 0.8  # Optional: Set a max token limit
+                "temperature": 0.2  # Optional: Set a max token limit
             }
         )
         if 'output' in response and 'message' in response['output']:
@@ -317,7 +318,7 @@ async def update_test(test_id: int, test: Test):
 @api_router.get("/tests/")
 async def get_tests(guideline_id: int):
     """Get all tests"""
-    response = supabase_client.table("tests").select("*").eq("id", guideline_id).execute()
+    response = supabase_client.table("tests").select("*").eq("guideline_id", guideline_id).execute()
     if not response.data:
         raise HTTPException(status_code=400, detail=response.data or 'Error in the request')
     return {"data": response.data}
@@ -402,13 +403,43 @@ async def delete_student_answer(answer_id: int):
     return {"message": "Student answer deleted successfully"}
 
 @api_router.get("/questions")
-async def get_test_questions(test_id: int):
-    """Get all test questions for a specific test"""
-    response = supabase_client.table("questions").select("*").eq("test_id", test_id).execute()
+async def get_guideline_questions(guideline_id: int):
+    """Get all guideline questions for a specific guideline"""
+    response = supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
     if not response.data:
         raise HTTPException(status_code=400, detail=response.data or 'Error in the request')
 
-    return {"message": "Test questions retrieved successfully"}
+    return {"message": "Test questions retrieved successfully", "data" : response.data}
+
+
+@api_router.get("/get_prompting_data/{guideline_id}")
+async def get_prompting_data(guideline_id: int):
+    """Get all guideline questions for a specific guideline"""
+    response = supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
+    if not response.data:
+        raise HTTPException(status_code=400, detail=response.data or 'Error in the request')
+    data_info = response.data
+    guideline_prompt_info = {}
+    answer_prompt_info = {}
+    for idx, info in enumerate(data_info):
+        question_id = info['id']
+        student_answer = supabase_client.table("students_answers").select("content").eq("question_id", question_id).execute()
+        guideline_prompt_info[idx] = {
+            'question' : info['title'],
+            'answer' : info['guideline_answer'],
+        }
+        answer_prompt_info[idx] = {'answer' : student_answer.data[0]['content']}
+    info_to_correct = {
+        'guideline' : guideline_prompt_info,
+        'answer' : answer_prompt_info,
+    }
+    result = await correct_exam(
+        info_to_correct["guideline"],
+        info_to_correct["answer"],
+    )
+    return result
+
+
 
 @api_router.get("/guidelines/")
 async def get_guidelines():
