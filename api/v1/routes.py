@@ -1,5 +1,5 @@
 # FastApi Imports
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, Form, UploadFile, HTTPException
 
 # Libraries Imports
 import threading
@@ -232,26 +232,33 @@ async def parse_ocr_answer(ocr_answer: List[str]):
 async def save_file(file: UploadFile = File(...)):
     file_in_s3 = upload_pauta(file)
     #save to pauta table
-    supabase_client.table("guidelines").insert({"title":file_in_s3["filename"], "s3_link":file_in_s3["url"], "s3_filename": file_in_s3["filename"]}).execute()
+    response = supabase_client.table("guidelines").insert({"title":file_in_s3["filename"], "s3_link":file_in_s3["url"], "s3_filename": file_in_s3["filename"]}).execute()
+    guideline_id = response.data[0]["id"]
     text_in_file = proses_file_function(f'data/{file_in_s3["filename"]}')
     file_questions = parse_ocr_function(text_in_file["result"])
     #save file_questions dict to questions table
     for key, value in file_questions.items():
-        supabase_client.table("questions").insert({"positional_index": key, "title": value.get("question"), "guideline_answer":value.get("answer")}).execute()
+        supabase_client.table("questions").insert({"guideline_id":guideline_id,"positional_index": key, "title": value.get("question"), "guideline_answer":value.get("answer")}).execute()
     
     return {"message": "File saved successfully", "data": [file_in_s3,text_in_file, file_questions]}
 
 @api_router.post("/saveTest/")
-async def save_Test(files: List[UploadFile] = File(...)):
+async def save_Test(guideline_id: int = Form(...),files: List[UploadFile] = File(...)):
     files_in_s3 = upload_test(files)
 
     for file in files_in_s3["files"]:
-        supabase_client.table("tests").insert({"s3_link":file["url"], "s3_filename": file["filename"]}).execute()
+        response = supabase_client.table("tests").insert({"guideline_id": guideline_id, "s3_link":file["url"], "s3_filename": file["filename"]}).execute()
+        test_id = response.data[0]["id"]
         text_in_file = proses_file_function(f'data/{file["filename"]}')
         file_questions = parse_ocr_function(text_in_file["result"])
+        questions_response = supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
+        questions =  questions_response.data
+        questions_by_index = {q["positional_index"]: q for q in questions}
         #save file_questions dict to questions table
         for key, value in file_questions.items():
-            supabase_client.table("students_answers").insert({ "content":value.get("answer")}).execute()
+            question = questions_by_index.get(int(key))
+            question_id = question["id"]
+            supabase_client.table("students_answers").insert({"test_id":test_id, "content":value.get("answer"),"positional_index": int(key),"question_id": question_id}).execute()
     return {"message": "Files saved successfully", "data": [files_in_s3]}
 
 async def correct_exam(guideline: Dict, answer: Dict):
@@ -382,7 +389,7 @@ async def get_student_answers(test_id: int):
     response = supabase_client.table("students_answers").select("*").eq("id", test_id).execute()
     if not response.data:
         raise HTTPException(status_code=404, detail="Student answer not found")
-    return {"data": response.data[0]}
+    return {"data": response.data}
 
 @api_router.put("/students_answers/{answer_id}")
 async def update_student_answer(answer_id: int, student_answer: StudentAnswer):
@@ -408,8 +415,7 @@ async def get_guideline_questions(guideline_id: int):
     response = supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
     if not response.data:
         raise HTTPException(status_code=400, detail=response.data or 'Error in the request')
-
-    return {"message": "Test questions retrieved successfully", "data" : response.data}
+    return {"message": "Test questions retrieved successfully", "data": response.data}
 
 
 @api_router.get("/get_prompting_data/{guideline_id}")
