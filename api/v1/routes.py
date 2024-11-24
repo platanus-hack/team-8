@@ -278,6 +278,14 @@ async def update_test(test_id: int, test: Test):
         raise HTTPException(status_code=400, detail=response.error.message)
     return {"message": "Test updated successfully", "data": response.data}
 
+@api_router.get("/tests/")
+async def get_tests(guideline_id: int):
+    """Get all tests"""
+    response = supabase_client.table("tests").select("*").eq("id", guideline_id).execute()
+    if not response.data:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"data": response.data}
+
 @api_router.delete("/tests/{test_id}")
 async def delete_test(test_id: int):
     """Delete a test by ID"""
