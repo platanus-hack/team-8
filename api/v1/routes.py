@@ -334,10 +334,10 @@ async def add_student_answer(student_answer: StudentAnswer):
         raise HTTPException(status_code=400, detail=response.data or 'Error in the request')
     return {"message": "Student answer created successfully", "data": response.data}
 
-@api_router.get("/students_answers/{answer_id}")
-async def get_student_answer(answer_id: int):
+@api_router.get("/students_answers/{test_id}")
+async def get_student_answers(test_id: int):
     """Get a specific student answer by ID"""
-    response = supabase_client.table("students_answers").select("*").eq("id", answer_id).execute()
+    response = supabase_client.table("students_answers").select("*").eq("id", test_id).execute()
     if not response.data:
         raise HTTPException(status_code=404, detail="Student answer not found")
     return {"data": response.data[0]}
