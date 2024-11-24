@@ -249,15 +249,14 @@ async def save_Test(guideline_id: int = Form(...),files: List[UploadFile] = File
         test_id = response.data[0]["id"]
         text_in_file = proses_file_function(f'data/{file["filename"]}')
         file_questions = parse_ocr_function(text_in_file["result"])
-
-        questions_response = await supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
+        questions_response = supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
         questions =  questions_response.data
         questions_by_index = {q["positional_index"]: q for q in questions}
         #save file_questions dict to questions table
         for key, value in file_questions.items():
-            question = questions_by_index.get(key)
+            question = questions_by_index.get(int(key))
             question_id = question["id"]
-            supabase_client.table("students_answers").insert({"test_id":test_id, "content":value.get("answer"),"positional_index": key,"question_id": question_id}).execute()
+            supabase_client.table("students_answers").insert({"test_id":test_id, "content":value.get("answer"),"positional_index": int(key),"question_id": question_id}).execute()
     return {"message": "Files saved successfully", "data": [files_in_s3]}
 
 @api_router.post("/correctExam/")
