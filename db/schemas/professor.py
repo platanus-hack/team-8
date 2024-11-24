@@ -7,5 +7,3 @@ from pydantic import BaseModel
 
 class Professor(BaseModel):
     email : str
-
-    guideline_id : int
