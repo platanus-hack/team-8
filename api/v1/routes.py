@@ -250,8 +250,8 @@ async def save_Test(guideline_id: int = Form(...),files: List[UploadFile] = File
         text_in_file = proses_file_function(f'data/{file["filename"]}')
         file_questions = parse_ocr_function(text_in_file["result"])
 
-        questions_response = supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
-        questions = questions_response.data
+        questions_response = await supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
+        questions =  questions_response.data
         questions_by_index = {q["positional_index"]: q for q in questions}
         #save file_questions dict to questions table
         for key, value in file_questions.items():
