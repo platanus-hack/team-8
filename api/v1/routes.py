@@ -15,6 +15,7 @@ from .services import open_textract_json
 from db.schemas.test import Test
 from db.schemas.student import Student
 from db.schemas.student_answer import StudentAnswer
+from db.schemas.guideline import Guideline
 #from core.database import Base, engine
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -257,6 +258,8 @@ async def upload_file(files: List[UploadFile] = File(...)):
 async def add_test(test: Test):
     """Create a new test in Supabase"""
     response = supabase_client.table("tests").insert(test.model_dump()).execute()
+
+    return {"message": "Prueba guardada exitosamente", "data": response.data}
     if response.error:
         raise HTTPException(status_code=400, detail=response.error.message)
     return {"message": "Test created successfully", "data": response.data}
@@ -290,9 +293,7 @@ async def delete_test(test_id: int):
 async def add_student(student: Student):
     """Create a new student in Supabase"""
     response = supabase_client.table("students").insert(student.model_dump()).execute()
-    if response.error:
-        raise HTTPException(status_code=400, detail=response.error.message)
-    return {"message": "Student created successfully", "data": response.data}
+    return {"message": "Estudiante guardado exitosamente", "data": response.data}
 
 @api_router.get("/students/{student_id}")
 async def get_student(student_id: int):
@@ -350,3 +351,27 @@ async def delete_student_answer(answer_id: int):
     if response.error:
         raise HTTPException(status_code=400, detail=response.error.message)
     return {"message": "Student answer deleted successfully"}
+
+@api_router.get("/questions")
+async def get_test_questions(test_id: int):
+    """Get all test questions for a specific test"""
+    response = supabase_client.table("questions").select("*").eq("test_id", test_id).execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Test questions retrieved successfully"}
+
+@api_router.get("/guidelines/")
+async def get_guidelines():
+    """Get all guidelines"""
+    response = supabase_client.table("guidelines").select("*").execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"data": response.data}
+
+@api_router.post("/guideline/")
+async def add_guideline(guideline: Guideline):
+    """Create a new guideline in Supabase"""
+    response = supabase_client.table("guidelines").insert(guideline.model_dump()).execute()
+    if response.error:
+        raise HTTPException(status_code=400, detail=response.error.message)
+    return {"message": "Guideline created successfully", "data": response.data}
