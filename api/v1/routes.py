@@ -230,12 +230,13 @@ async def parse_ocr_answer(ocr_answer: List[str]):
 async def save_file(file: UploadFile = File(...)):
     file_in_s3 = upload_pauta(file)
     #save to pauta table
-    supabase_client.table("guidelines").insert({"title":file_in_s3["filename"], "s3_link":file_in_s3["url"], "s3_filename": file_in_s3["filename"]}).execute()
+    response = supabase_client.table("guidelines").insert({"title":file_in_s3["filename"], "s3_link":file_in_s3["url"], "s3_filename": file_in_s3["filename"]}).execute()
+    guideline_id = response.data[0]["id"]
     text_in_file = proses_file_function(f'data/{file_in_s3["filename"]}')
     file_questions = parse_ocr_function(text_in_file["result"])
     #save file_questions dict to questions table
     for key, value in file_questions.items():
-        supabase_client.table("questions").insert({"positional_index": key, "title": value.get("question"), "guideline_answer":value.get("answer")}).execute()
+        supabase_client.table("questions").insert({"guideline_id":guideline_id,"positional_index": key, "title": value.get("question"), "guideline_answer":value.get("answer")}).execute()
     
     return {"message": "File saved successfully", "data": [file_in_s3,text_in_file, file_questions]}
 
@@ -244,12 +245,13 @@ async def save_Test(files: List[UploadFile] = File(...)):
     files_in_s3 = upload_test(files)
 
     for file in files_in_s3["files"]:
-        supabase_client.table("tests").insert({"s3_link":file["url"], "s3_filename": file["filename"]}).execute()
+        response = supabase_client.table("tests").insert({"s3_link":file["url"], "s3_filename": file["filename"]}).execute()
+        test_id = response.data[0]["id"]
         text_in_file = proses_file_function(f'data/{file["filename"]}')
         file_questions = parse_ocr_function(text_in_file["result"])
         #save file_questions dict to questions table
         for key, value in file_questions.items():
-            supabase_client.table("students_answers").insert({ "content":value.get("answer")}).execute()
+            supabase_client.table("students_answers").insert({"test_id":test_id, "content":value.get("answer"),"positional_index": key}).execute()
     return {"message": "Files saved successfully", "data": [files_in_s3]}
 
 @api_router.post("/correctExam/")
