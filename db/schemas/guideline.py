@@ -10,5 +10,6 @@ class Guideline(BaseModel):
     topic : str
     max_score :  int
     s3_link : str
+    s3_filename : str
     
     professor_id : int

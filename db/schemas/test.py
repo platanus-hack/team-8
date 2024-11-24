@@ -11,6 +11,8 @@ class Test(BaseModel):
     student_score :  int
     s3_link: str
     positional_index :  int
+    s3_filename: str
+
     
     guideline_id : int  
     student_id : int  
