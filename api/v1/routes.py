@@ -230,7 +230,7 @@ async def parse_ocr_answer(ocr_answer: List[str]):
 async def save_file(file: UploadFile = File(...)):
     file_in_s3 = upload_pauta(file)
     #save to pauta table
-    supabase_client.table("guidelines").insert({"s3_link":file_in_s3["url"], "s3_filename": file_in_s3["filename"]}).execute()
+    supabase_client.table("guidelines").insert({"title":file_in_s3["filename"], "s3_link":file_in_s3["url"], "s3_filename": file_in_s3["filename"]}).execute()
     text_in_file = proses_file_function(f'data/{file_in_s3["filename"]}')
     file_questions = parse_ocr_function(text_in_file["result"])
     #save file_questions dict to questions table
