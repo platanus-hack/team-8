@@ -1,5 +1,5 @@
 # FastApi Imports
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, Form, UploadFile, HTTPException
 
 # Libraries Imports
 import threading
@@ -241,17 +241,23 @@ async def save_file(file: UploadFile = File(...)):
     return {"message": "File saved successfully", "data": [file_in_s3,text_in_file, file_questions]}
 
 @api_router.post("/saveTest/")
-async def save_Test(files: List[UploadFile] = File(...)):
+async def save_Test(guideline_id: int = Form(...),files: List[UploadFile] = File(...)):
     files_in_s3 = upload_test(files)
 
     for file in files_in_s3["files"]:
-        response = supabase_client.table("tests").insert({"s3_link":file["url"], "s3_filename": file["filename"]}).execute()
+        response = supabase_client.table("tests").insert({"guideline_id": guideline_id, "s3_link":file["url"], "s3_filename": file["filename"]}).execute()
         test_id = response.data[0]["id"]
         text_in_file = proses_file_function(f'data/{file["filename"]}')
         file_questions = parse_ocr_function(text_in_file["result"])
+
+        questions_response = supabase_client.table("questions").select("*").eq("guideline_id", guideline_id).execute()
+        questions = questions_response.data
+        questions_by_index = {q["positional_index"]: q for q in questions}
         #save file_questions dict to questions table
         for key, value in file_questions.items():
-            supabase_client.table("students_answers").insert({"test_id":test_id, "content":value.get("answer"),"positional_index": key}).execute()
+            question = questions_by_index.get(key)
+            question_id = question["id"]
+            supabase_client.table("students_answers").insert({"test_id":test_id, "content":value.get("answer"),"positional_index": key,"question_id": question_id}).execute()
     return {"message": "Files saved successfully", "data": [files_in_s3]}
 
 @api_router.post("/correctExam/")
