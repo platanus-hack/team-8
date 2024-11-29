@@ -1,5 +1,6 @@
 # MeayudAI.com
 
-**MeayudAI.com** is a platform for correcting written tests. By uploading an answer key with the correct responses and then all the tests you want to correct, we can grade each question using OCR and language models.
+**MeayudAI.com** is your go-to platform for automated test correction. Simply upload the answer key with the correct responses, along with the tests you need graded, and our advanced OCR technology and language models will handle the rest.
 
-Start automating your test corrections today with [MeayudAI.com](https://myproject.com)!
+Save time and streamline your grading process today with [MeayudAI.com](https://myproject.com)!
+
